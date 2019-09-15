@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>Pong Game</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <link rel='stylesheet' type='text/css' media='screen' href='main.css'>
+</head>
+
+<body>
+
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+
+    <script>
+        var canvas;
+        var canvasContext;
+        var ballX = 10;
+        var ballY = 10;
+
+        var ballXSpeed = 10;
+        var ballYSpeed = 5;
+
+        var paddle1Y = 200;
+        var paddle2Y = 200;
+
+        const paddleHeight = 140;
+
+        var player1Score = 0;
+        var player2Score = 0;
+
+        const winningScore = 3;
+
+
+        //function that calculates mouse position
+
+        function calculateMousePosition(event) {
+            var rect = canvas.getBoundingClientRect();
+            var root = document.documentElement;
+            var mouseX = event.clientX - rect.left - root.scrollLeft;
+            var mouseY = event.clientY - rect.top - root.scrollTop;
+            return {
+                x: mouseX,
+                y: mouseY
+            };
+
+        }
+
+        window.onload = function () {
+
+            canvas = document.getElementById('gameCanvas');
+            canvasContext = canvas.getContext('2d');
+            var frames = 30;
+            setInterval(callBoth, 1000 / frames);
+
+            canvas.addEventListener('mousemove', function (event) {
+                var mousepos = calculateMousePosition(event);
+                paddle1Y = mousepos.y;
+            });
+        }
+
+ function ok(){
+    canvasContext.fillStyle = "white";
+                canvasContext.fillText("Congrats player 1! you won", 300, 300); 
+ }
+
+        //function that resets the ball
+
+        function resetBall() {
+            if(player1Score >= winningScore){ 
+                ok();
+            }
+            if(player2Score >= winningScore){ 
+               ok();
+
+            }
+
+            ballXSpeed = -ballXSpeed;
+            ballX = canvas.width / 2;
+            ballY = canvas.height / 2;
+        }
+
+        //adding move and draw in one function
+        function callBoth() {
+            move();
+            draw();
+        }
+
+        //move function for ball movement
+        function move() {
+
+            function computerMove() {
+                var paddle2YCenter = paddle2Y + 100;
+                if (ballY + 35 > paddle2YCenter) {
+                    paddle2Y += 5;
+                }
+                else if (ballY - 35 < paddle2YCenter) {
+                    paddle2Y -= 5;
+                }
+            };
+            computerMove();
+
+
+            ballX = ballX + ballXSpeed;
+            ballY = ballY + ballYSpeed;
+
+
+            if (ballX < 0) {
+                if (ballY > paddle1Y && ballY < paddle1Y + 140) {
+                    ballXSpeed = -ballXSpeed;
+                    var delY = ballY - (paddle1Y + 100)
+                    ballYSpeed = delY * 0.35;
+
+
+                } else {
+                    player2Score += 1;
+                    resetBall();
+                }
+            }
+            if (ballX > canvas.width) {
+                if (ballY > paddle2Y && ballY < paddle2Y + 140) {
+                    ballXSpeed = -ballXSpeed;
+                    var delY = ballY - (paddle2Y + 100)
+                    ballYSpeed = delY * 0.35;
+
+                } else {
+                    player1Score += 1;
+                    resetBall();
+
+                }
+            }
+
+            if (ballY > canvas.height) {
+                ballYSpeed = -ballYSpeed;
+            }
+            if (ballY < 0) {
+                ballYSpeed = -ballYSpeed;
+            }
+        }
+
+
+        //draw function for everything we draw
+        function draw() {
+
+            //drawing black canvas
+            canvasContext.fillStyle = 'black';
+            canvasContext.fillRect(0, 0, canvas.width, canvas.height);
+
+            //drawing ball
+            canvasContext.fillStyle = 'white';
+            canvasContext.beginPath();
+            canvasContext.arc(ballX, ballY, 10, 0, Math.PI * 2, true);
+            canvasContext.fill();
+
+            //drawing left stopper
+            canvasContext.fillStyle = 'white';
+            canvasContext.fillRect(2, paddle1Y, 10, 140);
+
+            //drawing right stopper
+            canvasContext.fillStyle = 'white';
+            canvasContext.fillRect(788, paddle2Y, 10, 140);
+
+            //representing player names
+            canvasContext.fillStyle = 'white';
+            canvasContext.fillText("Player 1 Score", 100, 50);
+            canvasContext.fillText(player1Score, 160, 100);
+            canvasContext.font = "20px Arial";
+
+            //representing scores
+            canvasContext.fillStyle = 'white';
+            canvasContext.fillText("Player 2 Score", 600, 50);
+            canvasContext.fillText(player2Score, 660, 100);
+            canvasContext.font = "20px Arial";
+
+
+        }
+
+    </script>
+</body>
+
+</html>
